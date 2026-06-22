@@ -166,11 +166,12 @@ client.on('messageCreate', async (msg) => {
     ) {
         const replytext =
             replies[Math.floor(Math.random() * replies.length)];
-        tts(replytext, msg as Message<true>);
-        msg.reply({
+
+        const adam_msg = await msg.reply({
             content: replytext,
             allowedMentions: { repliedUser: false },
         });
+        tts(replytext, adam_msg as Message<true>);
         return;
     }
 

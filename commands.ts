@@ -54,6 +54,7 @@ addCommand('die', async (msg) => {
             content: 'Nuh huh.',
             allowedMentions: { repliedUser: false },
         });
+        return;
     }
 
     const update_msg = await msg.reply({

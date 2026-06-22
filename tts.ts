@@ -12,7 +12,6 @@ import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import { sleep } from './index.ts';
 
 import googleTTS from 'google-tts-api';
-import { url } from 'inspector';
 
 export async function tts(message: string, msg: Message<true>) {
     if (!msg.member?.voice.channelId) return;
@@ -40,6 +39,8 @@ export async function tts(message: string, msg: Message<true>) {
         )
     ).accent;
 
+    // seperate quoted parts for different accent
+
     var capture_quotes: { quoted: boolean; txt: string }[] = [];
 
     message.match(/"\b.*?"/gi)?.forEach((part: string) => {
@@ -51,6 +52,7 @@ export async function tts(message: string, msg: Message<true>) {
         capture_quotes.push({ quoted: true, txt: part });
     });
     capture_quotes.push({ quoted: false, txt: message });
+
     const urls: {
         shortText: string;
         url: string;
@@ -59,22 +61,38 @@ export async function tts(message: string, msg: Message<true>) {
     capture_quotes = capture_quotes.filter((x) => x.txt != '');
 
     capture_quotes.forEach((part) => {
-        if (part.quoted) {
+        var lang = part.quoted ? 'en' : accent;
+        var slow = !part.quoted;
+
+        const seperated = part.txt.split(/\|\|.*?\|\|/gi);
+
+        if (seperated[0] != '') {
             urls.push(
-                ...googleTTS.getAllAudioUrls(part.txt, {
-                    lang: 'en',
-                })
-            );
-        } else {
-            urls.push(
-                ...googleTTS.getAllAudioUrls(part.txt, {
-                    lang: accent,
-                    slow: true,
+                ...googleTTS.getAllAudioUrls(seperated[0], {
+                    lang,
+                    slow,
                 })
             );
         }
+
+        if (seperated.length > 1) {
+            urls.push({
+                shortText: 'beep',
+                url: './storage/sounds/beep.mp3',
+            });
+
+            if (seperated[1] != '') {
+                urls.push(
+                    ...googleTTS.getAllAudioUrls(seperated[1], {
+                        lang,
+                        slow,
+                    })
+                );
+            }
+        }
     });
 
+    // create connection
     const connection = joinVoiceChannel({
         channelId: msg.member.voice.channelId,
         guildId: msg.guildId,
@@ -86,17 +104,20 @@ export async function tts(message: string, msg: Message<true>) {
         return msg.reply('Took to long to enter VC');
     }
 
-    var recources: AudioResource<null>[] = [];
+    var resources: AudioResource<null>[] = [];
 
     for (var t_url of urls) {
-        recources.push(createAudioResource(t_url.url));
+        resources.push(createAudioResource(t_url.url));
     }
 
     var player = createAudioPlayer();
+    player.on('error', (err) => {
+        msg.channel.send(`Something went wrong!\n||${err.message}||`);
+    });
 
     connection.subscribe(player);
 
-    for (const resource of recources) {
+    for (const resource of resources) {
         player.play(resource);
         try {
             await entersState(player, AudioPlayerStatus.Idle, 60_000);
@@ -105,8 +126,4 @@ export async function tts(message: string, msg: Message<true>) {
         }
         await sleep(0.01);
     }
-
-    player.on('error', (err) => {
-        msg.channel.send(`Something went wrong!\n||${err.message}||`);
-    });
 }

@@ -12,7 +12,6 @@ message.match(/"\b.*?"/gi)?.forEach((part: string) => {
 });
 capture_quotes.push({ quoted: false, txt: message });
 
-// how fool proof is this :sob:
 console.log(capture_quotes);
 
 //
