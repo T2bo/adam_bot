@@ -3,3 +3,5 @@ node_modules
 
 restart_info.json
 channels.json
+
+storage/per_user_config
