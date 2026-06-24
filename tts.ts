@@ -18,7 +18,7 @@ type Token =
     | { type: 'audio'; path: string };
 
 const TOKEN_REGEX =
-    /"(?<quote>.*?)"|\|\|(?<beep>.*?)\|\||\b(?<huh>huh)\b|\b(?<hellothere>hello there)\b|\b(?<ping>ping)\b|\b(?<bruh>bruh)\b|\b(?<mcdonalds>mcdonalds\.mp3)\b|\b(?<beninging>beninging)\b/gi;
+    /"(?<quote>.*?)"|\|\|(?<beep>.*?)\|\||\b(?<huh>huh)\b|\b(?<hellothere>hello there)\b|\b(?<ping>ping)\b|\b(?<bruh>bruh)\b|\b(?<mcdonalds>mcdonalds\.mp3)\b|\b(?<beninging>beninging)\b|\b(?<rain>im gonna need to hear some rain for a while)\b/gi;
 
 function parseMessage(message: string, userAccent: string): Token[] {
     const tokens: Token[] = [];
@@ -76,6 +76,11 @@ function parseMessage(message: string, userAccent: string): Token[] {
             tokens.push({
                 type: 'audio',
                 path: './storage/sounds/in the beningin.wav',
+            });
+        } else if (match.groups?.rain) {
+            tokens.push({
+                type: 'audio',
+                path: './storage/sounds/dragon-studio-relaxing-rain-444802.mp3',
             });
         }
 
@@ -174,10 +179,9 @@ export async function tts(message: string, msg: Message<true>) {
     for (const resource of resources) {
         try {
             player.play(resource);
-            await entersState(player, AudioPlayerStatus.Idle, 60_000);
+            await entersState(player, AudioPlayerStatus.Idle, 100_000);
         } catch (error) {
             return msg.reply('Took to long to play the audio');
         }
-        // await sleep(0.01);
     }
 }

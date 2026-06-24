@@ -158,6 +158,7 @@ client.on('messageCreate', async (msg) => {
             content: replytext,
             allowedMentions: { repliedUser: false },
         });
+
         tts(replytext, adam_msg as Message<true>);
         return;
     }
