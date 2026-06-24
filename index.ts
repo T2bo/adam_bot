@@ -1,36 +1,24 @@
 import {
     Client,
-    IntentsBitField,
     GatewayIntentBits,
-    AttachmentBuilder,
+    IntentsBitField,
     Message,
-    EmbedBuilder,
 } from 'discord.js';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 
-import {
-    joinVoiceChannel,
-    createAudioResource,
-    createAudioPlayer,
-    AudioResource,
-    AudioPlayerStatus,
-    entersState,
-    VoiceConnectionStatus,
-    VoiceConnection,
-} from '@discordjs/voice';
 const { TOKEN, TIBO_ID, EVIL_BOT } = process.env;
 
 var TiboMessageCounter: number = 0;
 
-import approvalPrompts from './approvalPrompts.ts';
 import replies from './adam_replies.ts';
-import evilBotPrompts from './evilBotPrompts.ts';
+import approvalPrompts from './approvalPrompts.ts';
 import { allCommands } from './commands.ts';
+import evilBotPrompts from './evilBotPrompts.ts';
+import { tts } from './tts.ts';
 import {
     readChannelStorage,
     writeChannelStorage,
 } from './utils/storage.ts';
-import { tts } from './tts.ts';
 
 const client = new Client({
     intents: new IntentsBitField().add([
@@ -165,6 +153,10 @@ client.on('messageCreate', async (msg) => {
 
     if (msg.inGuild()) {
         commandExecutor(msg, message, client);
+        if (message.startsWith('as ')) {
+            const sayThis = message.split(' ').slice(1).join(' ');
+            tts(sayThis, msg);
+        }
     }
 });
 
