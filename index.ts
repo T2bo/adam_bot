@@ -77,18 +77,20 @@ client.on('clientReady', async () => {
 const commandExecutor = compileCommands('adam');
 
 client.on('messageCreate', async (msg) => {
-    if (
-        msg.author.id == EVIL_BOT &&
-        evilBotPrompts.includes(msg.content)
-    ) {
-        msg.reply('Darling shut. ||\<3||'); // lol hiding the love
+    // just for easy access.
+    const message = msg.cleanContent.toLowerCase();
+
+    if (msg.author.id == EVIL_BOT) {
+        var _evilbot_prompt = evilBotPrompts.find(
+            (_p) => _p.trigger == msg.content
+        );
+        if (_evilbot_prompt) msg.reply(_evilbot_prompt.response); // lol hiding the love
+
+        if (message == 'bread') msg.reply('Bread.');
     }
 
     // dont do stuff when the bot sends a message
     if (msg.author.bot) return;
-
-    // just for easy access.
-    const message = msg.cleanContent.toLowerCase();
 
     // required ofcourse
     if (message.includes('🗿')) msg.react('🗿');
@@ -102,21 +104,6 @@ client.on('messageCreate', async (msg) => {
         });
         return;
     }
-
-    // // test
-    // if (message.match(/.*adam.*test.*/gi) != null) {
-    //     msg.reply({
-    //         content: 'Okay:',
-    //         allowedMentions: { repliedUser: false },
-    //     });
-
-    //     const update_this = await msg.channel.send(
-    //         '`this message should get updated in 1 second`'
-    //     );
-    //     await sleep();
-    //     update_this.edit('`did it work?`');
-    //     return;
-    // }
 
     // flooding warning
     var channelInfo = await readChannelStorage(msg.channelId);

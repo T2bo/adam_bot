@@ -9,4 +9,7 @@ export default [
     'No.',
     'Nah.',
     'Hell no...',
+    'You wish.',
+    'Sometimes.',
+    'How?',
 ];

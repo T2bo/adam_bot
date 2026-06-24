@@ -44,7 +44,7 @@ addCommand('fox', (msg) => {
 });
 
 addCommand('say', (msg, message) => {
-    const sayThis = message.replace(/.*adam.*say(\s)?/gi, '');
+    const sayThis = message.replace(/.*adam.*?say(\s)?/gi, '');
     tts(sayThis, msg);
 });
 
@@ -85,6 +85,7 @@ addCommand(['reset', 'count'], async (msg) => {
     channelInfo.TiboMessages = 0;
     await writeChannelStorage(msg.channelId, channelInfo);
 });
+
 addCommand(['show', 'timestamp'], async (msg) => {
     const channelInfo = await readChannelStorage(msg.channelId);
     const lastTimestamp = channelInfo.lastAdamGifTimestamp;
@@ -92,25 +93,19 @@ addCommand(['show', 'timestamp'], async (msg) => {
     const diff = now - lastTimestamp;
     msg.reply(`last:${lastTimestamp};\nnow:${now};\ndiff:${diff};`);
 });
+
 addCommand(['dont', 'allow', 'spam'], async (msg) => {
     msg.channel.send('ok');
     const channelInfo = await readChannelStorage(msg.channelId);
     channelInfo.WarnTiboAboutFlooding = true;
     await writeChannelStorage(msg.channelId, channelInfo);
 });
+
 addCommand(['allow', 'spam'], async (msg) => {
     msg.channel.send('ok');
     const channelInfo = await readChannelStorage(msg.channelId);
     channelInfo.WarnTiboAboutFlooding = false;
     await writeChannelStorage(msg.channelId, channelInfo);
-});
-
-addCommand('?', async (msg) => {
-    const adamemoji = msg.client.emojis.cache.get('1170472107742875688');
-    msg.reply({
-        content: `${adamemoji}`,
-        allowedMentions: { repliedUser: false },
-    });
 });
 
 addCommand(['reset', 'channels'], (msg) => {
