@@ -19,8 +19,12 @@ import {
     readChannelStorage,
     writeChannelStorage,
 } from './utils/storage.ts';
+import mineHandler, {
+    handleMineButtonInteraction,
+    handleMineSelectInteraction,
+} from './mineHandler.ts';
 
-const client = new Client({
+export const client = new Client({
     intents: new IntentsBitField().add([
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildVoiceStates,
@@ -68,16 +72,16 @@ client.on('messageCreate', async (msg) => {
     // just for easy access.
     const message = msg.cleanContent.toLowerCase();
 
-    if (msg.author.id == EVIL_BOT) {
-        var _evilbot_prompt = evilBotPrompts.find(
-            (_p) => _p.trigger == msg.content
-        );
-        if (_evilbot_prompt) msg.reply(_evilbot_prompt.response); // lol hiding the love
+    // if (msg.author.id == EVIL_BOT) {
+    //     var _evilbot_prompt = evilBotPrompts.find(
+    //         (_p) => _p.trigger == msg.content
+    //     );
+    //     if (_evilbot_prompt) msg.reply(_evilbot_prompt.response);
 
-        if (message == 'bread') msg.reply('Bread.');
-    }
+    //     if (message == 'bread') msg.reply('Bread.');
+    // }
 
-    // dont do stuff when the bot sends a message
+    // dont do stuff when a bot sends a message
     if (msg.author.bot) return;
 
     // required ofcourse
@@ -156,6 +160,27 @@ client.on('messageCreate', async (msg) => {
         if (message.startsWith('as ')) {
             const sayThis = message.split(' ').slice(1).join(' ');
             tts(sayThis, msg);
+        }
+
+        if (message.startsWith('a.')) {
+            const args = message.split('.').slice(1);
+            if (args[0]) {
+                if (args[0] == 'mine') {
+                    mineHandler(msg, args);
+                }
+            }
+        }
+    }
+});
+
+client.on('interactionCreate', async (interaction) => {
+    if (interaction.isButton()) {
+        if (interaction.customId.startsWith('mine.')) {
+            handleMineButtonInteraction(interaction);
+        }
+    } else if (interaction.isStringSelectMenu()) {
+        if (interaction.customId.startsWith('mine.')) {
+            handleMineSelectInteraction(interaction);
         }
     }
 });

@@ -8,7 +8,7 @@ import {
     writeChannelStorage,
 } from './utils/storage.ts';
 
-const { TOKEN, TIBO_ID, EVIL_BOT } = process.env;
+const { TIBO_ID } = process.env;
 
 export const allCommands = new Map<string[], HandlerFn>();
 function addCommand(triggers: string | string[], handler: HandlerFn) {
